@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <script src="pdfjs/build/pdf.js"></script>
+    <link rel="stylesheet" href="overlay.css">
+    <style>
+        html, body { height:100%; margin: 0; overflow: hidden; background: #000; }
+        #pdf-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background: #111;
+        }
+        #canvas {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+        }
+
+        #overlay-container {
+            position: absolute;
+            left: 0;
+            top: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="pdf-container">
+        <canvas id="canvas"></canvas>
+        <div id="overlay-container"></div> 
+    </div>
+
+    <script src="overlay.js"></script>
+
+    <script>
+        window.showOverlayFromPython = function(text="Hello!", duration=0) {
+            if (window.overlayController && window.overlayController.onPdfRendered) {
+                const w = canvas.width;
+                const h = canvas.height;
+
+                window.overlayController.onPdfRendered(w, h, text, duration);
+            }
+        };
+    </script>
+
+    <script>
+
+        const url = "exemplo.pdf";
+
+        pdfjsLib.GlobalWorkerOptions.workerSrc = "pdfjs/build/pdf.worker.js";
+
+        let pdfDoc = null;
+        let currentPage = 1;
+
+        function computeScale(viewport) {
+            const screenW = window.innerWidth;
+            const screenH = window.innerHeight;
+            return Math.min(screenW / viewport.width, screenH / viewport.height);
+        }
+
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas.getContext("2d");
+        const overlayContainer = document.getElementById("overlay-container");
+
+        async function renderPage(pageNum) {
+            const page = await pdfDoc.getPage(pageNum);
+
+            let viewport = page.getViewport({ scale: 1 });
+            const scale = computeScale(viewport);
+            viewport = page.getViewport({ scale });
+
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+
+            canvas.style.width = viewport.width + "px";
+            canvas.style.height = viewport.height + "px";
+
+            overlayContainer.style.width = viewport.width + "px";
+            overlayContainer.style.height = viewport.height + "px";
+            overlayContainer.style.left = `calc(50% - ${viewport.width / 2}px)`;
+            overlayContainer.style.top  = `calc(50% - ${viewport.height / 2}px)`;
+
+            await page.render({ canvasContext: ctx, viewport }).promise;
+
+            if (typeof onPdfRendered === "function") {
+                //onPdfRendered(viewport.width, viewport.height);
+            }
+        }
+
+        pdfjsLib.getDocument(url).promise.then(pdf => {
+            pdfDoc = pdf;
+            renderPage(currentPage);
+        });
+
+        document.addEventListener("keydown", (e) => {
+            if (!pdfDoc) return;
+
+            if (e.key === "ArrowRight" && currentPage < pdfDoc.numPages) {
+                currentPage++;
+                renderPage(currentPage);
+            }
+            if (e.key === "ArrowLeft" && currentPage > 1) {
+                currentPage--;
+                renderPage(currentPage);
+            }
+        });
+
+        window.addEventListener("resize", () => {
+            if (pdfDoc) renderPage(currentPage);
+        });
+    </script>
+</body>
+</html>
