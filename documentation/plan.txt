@@ -1,0 +1,27 @@
+.....
+
+
+
+Fluxo da IA:
+    poderá:
+        Buscar uma imagem
+        Buscar um site (notícias, informações em tempo real)
+        Responder uma pergunta (IA do google Buscar)
+
+    Quando acionado, a ia analisará o contexto recente (podendo limitar para os últimos X caracteres) e o texto extraído do slide, e primeiro:
+        Decidir qual operação realizar (imagem, site ou pergunta)
+        Enviar a busca que será feita
+            Para imagem:
+                Será feita a busca no google images e coletada a primeira imagem que aparecer
+            Para pergunta:
+                Inicialmente a IA já responderia a informação diretamente (podendo evoluir para o google search futuramente)
+            Para site:
+                Pesquisa-se no google a informação que se deseja buscar, e colhemos o primeiro resultado e fazemos um GET na url, coletando o HTML do site inicial (acredito que notícias, em maioria) e mostrando na caixa
+            
+
+# Lock the system
+# lock with a picture:
+bindsym $mod+l exec --no-startup-id i3lock -i  ~/home/teseumvi/Downloads/wallpaper_lockscreen.jpg -p default|win -t
+
+
+

@@ -9,11 +9,17 @@ view = QWebEngineView()
 view.load("file:////home/teseumvi/dynamic-slides/viewer.html")
 view.showFullScreen()
 
-def trigger_overlay():
-    js = "showOverlayFromPython('Mensagem automática!', 2500);"
+def trigger_overlay(msg):
+    js = f"showOverlayFromPython('{msg}', 2500);"
     view.page().runJavaScript(js)
 
 
-QTimer.singleShot(2000, trigger_overlay)
+while True:
+    escolha = input("Escolha: ")
+    if escolha=="q":
+        break
+    trigger_overlay(escolha)
+
+#QTimer.singleShot(2000, trigger_overlay)
 
 app.exec()

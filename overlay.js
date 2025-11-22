@@ -1,7 +1,4 @@
-
-
 const overlayRoot = document.getElementById("overlay-container");
-
 const DEFAULT_TEXT = "Mensagem de apresentação";
 
 let currentBox = null;
